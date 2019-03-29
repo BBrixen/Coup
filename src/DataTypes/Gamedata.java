@@ -3,7 +3,6 @@ package DataTypes;
 import Cards.Deck;
 import Game.Player;
 import Servers.Server;
-
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -21,4 +20,6 @@ public class Gamedata extends Data {
     public Gamedata(String message, Socket recipient, boolean isGameData, boolean isReturned, boolean isUpdate) {
         super(message, recipient, isGameData, isReturned, isUpdate);
     }
+
+    
 }
