@@ -1,6 +1,9 @@
 package Game;
 import Cards.Card;
 import Cards.Deck;
+import DataTypes.Gamedata;
+import Servers.OmniObjectClient;
+
 import java.io.IOException;
 public class ActionHandler {
 
@@ -73,5 +76,9 @@ public class ActionHandler {
     }
     public static boolean hasCardWithBlock(Player user, String block) {
         return hasCardWithName(user, Deck.blockToName(block));
+    }
+
+    public static void parseData(Gamedata data, OmniObjectClient client) {
+        System.out.println(data);
     }
 }

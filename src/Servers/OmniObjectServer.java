@@ -1,5 +1,7 @@
 package Servers;
 
+import DataTypes.Data;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,15 +13,21 @@ public class OmniObjectServer {
 
     static ServerSocket serverSocket;
     static ArrayList<Socket> sockets = new ArrayList<>();
-    static ArrayList<ObjectOutputStream> objectOutputStreams = new ArrayList<>();
 
-    public static void main(String[] args) throws Exception{
+    public OmniObjectServer() {
+        try {
+            init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static void init() throws Exception {
         System.out.println("Starting Server");
         serverSocket = new ServerSocket(7777);
         System.out.println("Server Started");
 
-        while (true) {
+        while (sockets.size() < 4) {
             clientJoins();
         }
     }
@@ -33,8 +41,6 @@ public class OmniObjectServer {
         System.out.println("Client Connected, address: " + socket.getInetAddress());
         sockets.add(socket);
 
-        out = new ObjectOutputStream(socket.getOutputStream());
-        objectOutputStreams.add(out);
 
         //recieving client data
         //new thread for each client so that all of them can send data at the same time
@@ -47,8 +53,6 @@ public class OmniObjectServer {
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         Object data = (Object) in.readObject();
                         System.out.println(data);
-                        out.writeObject(null);
-                        out.flush();
                     } catch (IOException | ClassNotFoundException e) {
                         System.out.println("Client disconnected");
                         System.exit(12);
@@ -57,5 +61,12 @@ public class OmniObjectServer {
             }
         });
         thread.start();
+    }
+
+    public static void sendData(Data data) throws IOException {
+        Socket client = data.getRecipient();
+        ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
+        out.writeObject(data);
+        out.flush();
     }
 }
