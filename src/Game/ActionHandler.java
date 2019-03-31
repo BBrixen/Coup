@@ -80,5 +80,13 @@ public class ActionHandler {
 
     public static Gamedata parseData(Gamedata data, OmniObjectClient client) {
         System.out.println(data);
+        if (data.isUpdate()) {
+            client.setCurrent_gamedata(data);
+        } else if (data.isGameData()) {
+            //change data object
+        }
+
+        if (data.isReturned()) return data;
+        return null;
     }
 }

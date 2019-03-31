@@ -1,6 +1,7 @@
 package Servers;
 
 import DataTypes.Data;
+import DataTypes.Gamedata;
 import Game.ActionHandler;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ public class OmniObjectClient {
     static Socket socket;
     static ObjectInputStream in;
     static ObjectOutputStream out;
+    static Gamedata current_gamedata = null;
 
     public OmniObjectClient() {
         try {
@@ -57,6 +59,8 @@ public class OmniObjectClient {
                             out = new ObjectOutputStream(socket.getOutputStream());
                             out.writeObject(ActionHandler.parseData((DataTypes.Gamedata) data, client));
                             out.flush();
+                        } else if(data.isUpdate()) {
+
                         } else {
                             //GUIDataParser
                         }
@@ -92,5 +96,13 @@ public class OmniObjectClient {
 
     public static void setOut(ObjectOutputStream out) {
         OmniObjectClient.out = out;
+    }
+
+    public static Gamedata getCurrent_gamedata() {
+        return current_gamedata;
+    }
+
+    public static void setCurrent_gamedata(Gamedata current_gamedata) {
+        OmniObjectClient.current_gamedata = current_gamedata;
     }
 }

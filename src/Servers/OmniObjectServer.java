@@ -1,38 +1,58 @@
 package Servers;
 
 import DataTypes.Data;
+import DataTypes.Gamedata;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class OmniObjectServer {
 
-    static ServerSocket serverSocket;
-    static ArrayList<Socket> sockets = new ArrayList<>();
+    public static ServerSocket serverSocket;
+    public static ArrayList<Socket> sockets = new ArrayList<>();
+    public static Gamedata current_gamedata = null;
 
-    public OmniObjectServer() {
+    public OmniObjectServer(Gamedata gamedata) {
         try {
-            init();
+            init(gamedata);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void init() throws Exception {
+    public static void init(Gamedata data) throws Exception {
         System.out.println("Starting Server");
         serverSocket = new ServerSocket(7777);
         System.out.println("Server Started");
 
+        current_gamedata = data;
+
+        Scanner scanner = new Scanner(System.in);
         while (sockets.size() < 4) {
-            clientJoins();
+
+            System.out.println("Ready for next client?");
+            if (scanner.nextLine().equalsIgnoreCase("ter")) {
+                break;
+            }
+            System.out.println("Waiting for client to connect");
+
+            Socket newClient = clientJoins();
+
+            data.setReturned(false);
+            data.setRecipient(newClient);
+            data.setUpdate(true);
+            data.setGameData(true);
+            sendData(data);
         }
     }
 
-    public static void clientJoins() throws IOException{
+    public static Socket clientJoins() throws IOException{
         Socket socket;
         ObjectOutputStream out;
 
@@ -41,26 +61,7 @@ public class OmniObjectServer {
         System.out.println("Client Connected, address: " + socket.getInetAddress());
         sockets.add(socket);
 
-
-        //recieving client data
-        //new thread for each client so that all of them can send data at the same time
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        //getting the data from the client
-                        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                        Object data = (Object) in.readObject();
-                        System.out.println(data);
-                    } catch (IOException | ClassNotFoundException e) {
-                        System.out.println("Client disconnected");
-                        System.exit(12);
-                    }
-                }
-            }
-        });
-        thread.start();
+        return socket;
     }
 
     public static void sendData(Data data) throws IOException {
@@ -68,5 +69,25 @@ public class OmniObjectServer {
         ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
         out.writeObject(data);
         out.flush();
+        if (data.isReturned()) {
+            handleData(recieveData(data.getRecipient()));
+        }
+    }
+
+    public static Data recieveData(Socket client) throws IOException {
+        ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+        try {
+            return (Data) in.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void handleData(Data data) {
+        if (data.isGameData()) {
+            data.setGameData(false);
+            data.setUpdate(true);
+        }
     }
 }
