@@ -54,7 +54,11 @@ public class OmniObjectClient {
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         Data data = (Data) in.readObject();
                         if(data.isGameData()) {
-                            ActionHandler.parseData((DataTypes.Gamedata) data, client);
+                            out = new ObjectOutputStream(socket.getOutputStream());
+                            out.writeObject(ActionHandler.parseData((DataTypes.Gamedata) data, client));
+                            out.flush();
+                        } else {
+                            //GUIDataParser
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         System.out.println("Client disconnected");
@@ -64,5 +68,29 @@ public class OmniObjectClient {
             }
         });
         thread.start();
+    }
+
+    public static Socket getSocket() {
+        return socket;
+    }
+
+    public static void setSocket(Socket socket) {
+        OmniObjectClient.socket = socket;
+    }
+
+    public static ObjectInputStream getIn() {
+        return in;
+    }
+
+    public static void setIn(ObjectInputStream in) {
+        OmniObjectClient.in = in;
+    }
+
+    public static ObjectOutputStream getOut() {
+        return out;
+    }
+
+    public static void setOut(ObjectOutputStream out) {
+        OmniObjectClient.out = out;
     }
 }

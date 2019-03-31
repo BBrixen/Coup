@@ -78,7 +78,7 @@ public class ActionHandler {
         return hasCardWithName(user, Deck.blockToName(block));
     }
 
-    public static void parseData(Gamedata data, OmniObjectClient client) {
+    public static Gamedata parseData(Gamedata data, OmniObjectClient client) {
         System.out.println(data);
     }
 }
